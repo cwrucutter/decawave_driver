@@ -29,15 +29,14 @@ import serial, time, os
 from serial import SerialException
 
 class DecaWaveDriver:
-  
   def __init__(self):
     rospy.init_node('decawave_driver')
     dwPub = rospy.Publisher('dw/data', DecaWaveMsg, queue_size = 5)
     try:
       ser = serial.Serial(
-      port = 5,
-      timeout = 1,
-      baudrate = 115200
+      port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A8004IFu-if00-port0",
+      timeout = 10,
+      baudrate = 9600
       )
       
       dwMsg = DecaWaveMsg()
@@ -67,9 +66,12 @@ class DecaWaveDriver:
         dwMsg.dist = (d0, d1, d2, d3)
         dwMsg.header.stamp = rospy.get_rostime()
         dwPub.publish(dwMsg)
+        rospy.loginfo(dwMsg.dist)
       
       ser.close()
       
     except SerialException:
       print("Could not connect to the serial port")
     
+if __name__ == "__main__":
+  dw = DecaWaveDriver()
