@@ -54,17 +54,30 @@ class DecaWaveDriver:
       d2 = 0
       d3 = 0
       while not rospy.is_shutdown():
+        # Check to make sure the bitstream is at the beginning of a message
+        match = '\x6D' # x6D is the ascii character 'm'
+        sync = ser.read()
+        if sync != match:
+          print "Sync didn't match."
+          continue
+        else:
+          print "Sync matched. Starting Read."
         i = 0
-        while i < 3:
-          raw_data = ser.read(size = 56)
-          if raw_data[1:4] == b'a00':
-            d0 = int(raw_data[9:17], 16) / 1000.00
-          elif raw_data[1:4] == b'a01':
-            d1 = int(raw_data[9:17], 16) / 1000.00
-          elif raw_data[1:4] == b'a02':
-            d2 = int(raw_data[9:17], 16) / 1000.00
-          elif raw_data[1:4] == b'a03':
-            d3 = int(raw_data[9:17], 16) / 1000.00
+        while i <= 2:
+          if i != 0:
+            sync = ser.read() # read the m from the beginning of the message
+          raw_data = ser.readline()
+          if ((i == 0) and (raw_data[0:3] != b'a00')):
+              print "Advance until at a00."
+              break
+          if raw_data[0:3] == b'a00':
+            d0 = int(raw_data[8:16], 16) / 1000.00
+          elif raw_data[0:3] == b'a01':
+            d1 = int(raw_data[8:16], 16) / 1000.00
+          elif raw_data[0:3] == b'a02':
+            d2 = int(raw_data[8:16], 16) / 1000.00
+          elif raw_data[0:3] == b'a03':
+            d3 = int(raw_data[8:16], 16) / 1000.00
           i+=1
           
         dwMsg.dist = (d0, d1, d2, d3)
