@@ -31,16 +31,20 @@ from serial import SerialException
 class DecaWaveDriver:
   def __init__(self):
     rospy.init_node('decawave_driver')
-    dwPub = rospy.Publisher('dw/data', DecaWaveMsg, queue_size = 5)
+    #Init DecaWave port
+    dwPort = rospy.get_param('~port','/dev/ttyUSB0')
+    dwRate = rospy.get_param('~baud',9600)
+    dwID   = rospy.get_param('~id','t0')
+    dwPub = rospy.Publisher('dw/' + dwID + '/data', DecaWaveMsg, queue_size = 5)
     try:
       ser = serial.Serial(
-      port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A8004IFu-if00-port0",
+      port = dwPort,
       timeout = 10,
-      baudrate = 9600
+      baudrate = dwRate
       )
       
       dwMsg = DecaWaveMsg()
-      dwMsg.header.frame_id = "base_decawave"
+      dwMsg.header.frame_id = "base_decawave_" + dwID
       
       ser.close()
       ser.open()
