@@ -49,41 +49,42 @@ class DecaWaveDriver:
       ser.close()
       ser.open()
       
-      d0 = 0
-      d1 = 0
-      d2 = 0
-      d3 = 0
       while not rospy.is_shutdown():
-        # Check to make sure the bitstream is at the beginning of a message
-        match = '\x6D' # x6D is the ascii character 'm'
-        sync = ser.read()
-        if sync != match:
-          print "Sync didn't match."
-          continue
-        else:
-          print "Sync matched. Starting Read."
-        i = 0
-        while i <= 2:
-          if i != 0:
-            sync = ser.read() # read the m from the beginning of the message
-          raw_data = ser.readline()
-          if ((i == 0) and (raw_data[0:3] != b'a00')):
-              print "Advance until at a00."
-              break
-          if raw_data[0:3] == b'a00':
-            d0 = int(raw_data[8:16], 16) / 1000.00
-          elif raw_data[0:3] == b'a01':
-            d1 = int(raw_data[8:16], 16) / 1000.00
-          elif raw_data[0:3] == b'a02':
-            d2 = int(raw_data[8:16], 16) / 1000.00
-          elif raw_data[0:3] == b'a03':
-            d3 = int(raw_data[8:16], 16) / 1000.00
-          i+=1
-          
-        dwMsg.dist = (d0, d1, d2, d3)
-        dwMsg.header.stamp = rospy.get_rostime()
-        dwPub.publish(dwMsg)
-        rospy.loginfo(dwMsg.dist)
+        raw_data = ser.readline()
+        data = raw_data.split()
+        if data[0] == 'mc':
+          #print "read data as a list:"
+          #print data
+          mask = int(data[1],16)
+          if (mask & 0x01):
+            #print "range0 good"
+            range0 = int(data[2],16)/1000.0
+          else:
+            #print "range0 bad"
+            range0 = -1
+          if (mask & 0x02):
+            #print "range1 good"
+            range1 = int(data[3],16)/1000.0
+          else:
+            #print "range1 bad"
+            range1 = -1
+          if (mask & 0x04):
+            #print "range2 good"
+            range2 = int(data[4],16)/1000.0
+          else:
+            #print "range2 bad"
+            range2 = -1
+          if (mask & 0x08):
+            #print "range3 good"
+            range3 = int(data[5],16)/1000.0
+          else:
+            #print "range3 bad"
+            range3 = -1
+
+          dwMsg.dist = (range0, range1, range2, range3)
+          dwMsg.header.stamp = rospy.get_rostime()
+          dwPub.publish(dwMsg)
+          rospy.loginfo(dwMsg.dist) 
       
       ser.close()
       
