@@ -71,25 +71,25 @@ class DecaWaveDriver:
               #print "range0 good"
               range0 = int(data[2],16)/1000.0
             else:
-              #print "range0 bad"
+              print "range0 bad"
               # range0 = -1
             if (mask & 0x02):
               #print "range1 good"
               range1 = int(data[3],16)/1000.0
             else:
-              #print "range1 bad"
+              print "range1 bad"
               # range1 = -1
             if (mask & 0x04):
               #print "range2 good"
               range2 = int(data[4],16)/1000.0
             else:
-              #print "range2 bad"
+              print "range2 bad"
               # range2 = -1
             if (mask & 0x08):
               #print "range3 good"
               range3 = int(data[5],16)/1000.0
             else:
-              #print "range3 bad"
+              print "range3 bad"
               # range3 = -1
 
             dwMsg.dist = (range0, range1, range2, range3)
