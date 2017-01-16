@@ -1,0 +1,28 @@
+<launch>
+<!-- get Anchor angle, Tag angle, and Distance from command line -->
+<arg name="a" default="0"/>
+<arg name="t" default="0"/>
+<arg name="d" default="0"/>
+<!-- Launch the DecaWave Driver node for T0 -->
+<node pkg="decawave_driver" type="dist_reader.py" name="dist_reader" output="screen">
+  <param name="port" value="/dev/serial/by-id/usb-STMicroelectronics_STM32_Virtual_ComPort_in_FS_Mode_00000000050C-if00" type="string"/>
+  <param name="baud" value="9600" type="int"/>
+  <param name="id" value="t0" type="string"/>
+
+  <param name="anchor_angle" type="double" value="$(arg a)"/>
+  <param name="tag_angle" type="double" value="$(arg t)"/>
+  <param name="beacon_distance" type="double" value="$(arg d)"/>
+</node>
+<!-- Publish the static transform from base_link to base_decawave0 -->
+<!-- transform updated 01/14/2016 by Matthew Klein (mak177@case.edu) -->
+<node pkg="tf2_ros" type="static_transform_publisher" name="tf_publisher_decawave0" args="-0.66846 -0.11684 0.67530 0 0 0 base_link base_decawave_t0"/>
+
+<!-- Launch the DecaWave Driver node for T1 -->
+<!-- <node pkg="decawave_driver" type="decawave_driver.py" name="driver_decawave1" output="screen"> -->
+  <!-- <param name="port" value="/dev/serial/by-id/usb-STMicroelectronics_STM32_Virtual_ComPort_in_FS_Mode_00000000050C-if00" type="string"/> -->
+  <!-- <param name="baud" value="9600" type="int"/> -->
+  <!-- <param name="id" value="t1" type="string"/> -->
+<!-- </node> -->
+<!-- Publish the static transform from base_link to base_decawave1 -->
+<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="tf_publisher_decawave1" args="-.15 0 0 0 0 0 base_link base_decawave_t1"/> -->
+</launch>
